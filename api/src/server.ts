@@ -1,35 +1,17 @@
 import express from 'express'
+import cors from 'cors'
 
-import firebase from 'firebase/app'
-import 'firebase/auth'
-
-import firebaseConfig from './config/firebase'
-
-firebase.initializeApp(firebaseConfig)
+import messageRoutes from './routes/messageRoutes'
+import authRoutes from './routes/authRoutes'
 
 const app = express()
+
+app.use(cors())
 app.use(express.json())
 
-app.post('/message', async (request, response) => {
-  const { body } = request
-
-  try {
-    const userCredentials = await firebase.auth().createUserWithEmailAndPassword(
-      body.email,
-      body.password
-    )
-
-    console.log(userCredentials)
-  } catch (err) {
-    response.status(400).json({
-      err,
-      message: 'puts'
-    })
-  }
-
-  response.status(200).send('Funcionando Guei')
-})
+app.use('/auth',authRoutes)
+app.use('/message', messageRoutes)
 
 app.listen(8888, () => {
-  console.log('App Running 🚀')
+  console.log('Backend up 🚀')
 })
