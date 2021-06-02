@@ -1,107 +1,21 @@
 import * as functions from "firebase-functions"
-import firebase from "./config/firebase"
 
-const db = firebase.firestore()
+import express from 'express'
+import cors from 'cors'
 
-interface messageProps {
-  id: string;
-  message: string;
-}
+import messageRoutes from './routes/messageRoutes'
+import authRoutes from './routes/authRoutes'
 
-export const authenticate = functions.https.onRequest(async (request, response) => {
-  const { email, password } = request.body
+const app = express()
 
-  try {
-    const userAuthenticated = await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
+app.use(cors())
+app.use(express.json())
 
-    response.status(200).json(userAuthenticated)
-  } catch (err) {
-    response.status(400).json({
-      err,
-      message: "Erro ao tentar se autenticar na rede"
-    })
-  }
-})
+app.use('/auth',authRoutes)
+app.use('/message', messageRoutes)
 
-export const getMessages = functions.https.onRequest(async (_, response) => {
-  const messagesFound = await db.collection("messages").get()
+functions.https.onRequest(app);
 
-  const formattedMessagesFound: messageProps[] = []
-
-  messagesFound.docs.map((message: any) => {
-    const data: any = {
-      id: message.id,
-      ...message.data()
-    }
-
-    formattedMessagesFound.push(data)
-  })
-
-  response.status(200).json({
-    messages: formattedMessagesFound,
-  })
-})
-
-export const postMessage = functions.https.onRequest(async (request, response) => {
-  const { message } = request.body
-
-  try {
-    const newMessageRef = await db.collection("messages").add({
-      message,
-    })
-
-    response.status(200).json({
-      success: "Mensagem salva com sucesso!",
-      message: {
-        id: newMessageRef.id,
-        message: message
-      }
-    })
-  } catch (err) {
-    response.status(400).json({
-      err
-    })
-  }
-})
-
-export const putMesssage = functions.https.onRequest(async (request, response) => {
-  const { id } = request.params
-  const { message } = request.body
-
-  try {
-    const messageRef = db.collection("messages").doc(id)
-
-    await messageRef.update({
-      message
-    })
-
-    response.status(200).json({
-      success: "Mensagem atualizada com sucesso"
-    })
-  } catch (err) {
-    response.status(400).json({
-      err
-    })
-  }
-})
-
-export const deleteMessage = functions.https.onRequest(async (request, response) => {
-  const { id } = request.params
-
-
-  try {
-    const messageRef = db.collection("messages").doc(id)
-
-    await messageRef.delete()
-
-    response.status(200).json({
-      success: "Mensagem deletada com sucesso"
-    })
-  } catch (err) {
-    response.status(400).json({
-      err
-    })
-  }
+app.listen(8888, () => {
+  console.log('Backend up 🚀')
 })

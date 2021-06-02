@@ -1,3 +1,5 @@
+import * as functions from "firebase-functions"
+
 import express from 'express'
 import cors from 'cors'
 
@@ -12,6 +14,9 @@ app.use(express.json())
 app.use('/auth',authRoutes)
 app.use('/message', messageRoutes)
 
+functions.https.onRequest(app);
+
 app.listen(8888, () => {
   console.log('Backend up 🚀')
+  console.log('Apk disponibilizado em: http://localhost:8888')
 })
