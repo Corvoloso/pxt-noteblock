@@ -150,7 +150,7 @@ const Home: React.FC = () => {
               name="message"
               value={notesForm.values.message}
               onChange={notesForm.handleChange}
-              placeholder="Faça uma anotação para salva-la abaixo"
+              placeholder="Digite algo para editar a anotação abaixo"
             />
 
             <Button type="submit">
