@@ -1,10 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useFormik } from 'formik'
 
 import Button from '@material-ui/core/Button'
-import { ArrowForward, Delete, Edit } from '@material-ui/icons'
+import {
+  ArrowForward,
+  Delete,
+  Edit,
+  Clear,
+  ArrowBack,
+} from '@material-ui/icons'
 
-// import api from '../../services/api'
+import api from '../../services/api'
 
 import { Container, NotesContainer } from './styles'
 
@@ -14,65 +20,178 @@ interface NotesProps {
 }
 
 const Home: React.FC = () => {
-  // const [notes, setNotes] = useState<NotesProps[]>([])
-  const [notes, setNotes] = useState<number[]>([1, 2, 3, 4, 5, 6, 7, 8, 9])
-  const { handleSubmit, register } = useForm()
+  const [notes, setNotes] = useState<NotesProps[]>([])
+  const [noteToEdit, setNoteToEdit] = useState<NotesProps | null>(null)
 
-  const handleAddNote = useCallback(async (data) => {
-    console.log(data)
-
-    // api.post('/messages', {
-    //   message,
-    // })
+  const handleStartEditing = useCallback((note) => {
+    setNoteToEdit(note)
   }, [])
 
-  const handleEditNote = useCallback(async () => {
-    console.log('Will add edit message via API')
-  }, [])
+  const handleAddNote = useCallback(
+    async (note) => {
+      try {
+        const { data } = await api.post('/message', note)
 
-  const handleRemoveNote = useCallback(async () => {
-    console.log('Will add remove message via API')
-  }, [])
+        const newNotes = [data.message, ...notes]
+
+        setNotes(newNotes)
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    [notes],
+  )
+
+  const handleEditNote = useCallback(
+    async ({ message }) => {
+      try {
+        if (noteToEdit) {
+          await api.put(`/message/${noteToEdit.id}`, { message })
+
+          const newNotes = notes
+
+          const foundRemovedIndex = notes.findIndex(
+            (note) => note.id === noteToEdit.id,
+          )
+
+          newNotes[foundRemovedIndex] = { message, id: noteToEdit.id }
+
+          setNotes(newNotes)
+          setNoteToEdit(null)
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    [notes, noteToEdit],
+  )
+
+  const handleRemoveNote = useCallback(
+    async (id) => {
+      try {
+        await api.delete(`/message/${id}`)
+
+        const foundRemovedNote = notes.find((note) => note.id === id)
+
+        setNotes(notes.filter((note) => note.id !== foundRemovedNote?.id))
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    [notes],
+  )
+
+  const notesForm = useFormik({
+    initialValues: {
+      message: '',
+    },
+    onSubmit: handleAddNote,
+  })
+
+  const editNotesForm = useFormik({
+    initialValues: {
+      message: '',
+    },
+    onSubmit: handleEditNote,
+  })
 
   useEffect(() => {
-    console.log('Will search for existing messages via API')
+    async function loadNotes() {
+      try {
+        const { data } = await api.get('/message')
+
+        setNotes(data.messages)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    loadNotes()
   }, [])
 
   return (
     <Container>
-      <p>Blocos de Nota - PXT</p>
+      <h1>Blocos de Nota - PXT</h1>
 
-      <form onSubmit={handleSubmit(handleAddNote)}>
-        <textarea id="message" {...register('message')} />
+      {noteToEdit ? (
+        <>
+          <form onSubmit={editNotesForm.handleSubmit}>
+            <textarea
+              name="message"
+              value={editNotesForm.values.message}
+              onChange={editNotesForm.handleChange}
+              placeholder="Faça uma anotação para salva-la abaixo"
+            />
 
-        <Button type="submit">
-          <ArrowForward />
-        </Button>
-      </form>
+            <Button type="submit">
+              <ArrowForward />
+            </Button>
+          </form>
 
-      <NotesContainer>
-        Lista de Mensagens
-        {notes.map((message) => (
-          <div>
-            <p>
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Iure
-              nostrum molestias quisquam dolorem repudiandae expedita alias
-              rerum veniam quas natus, inventore qui sit quo a ipsa obcaecati ab
-              illo beatae?
-            </p>
+          <NotesContainer>
+            <div key={noteToEdit?.id}>
+              <p>{noteToEdit?.message}</p>
 
-            <div>
-              <Button type="submit" color="inherit" onClick={handleEditNote}>
-                <Edit />
-              </Button>
-
-              <Button type="submit" color="inherit" onClick={handleRemoveNote}>
-                <Delete />
-              </Button>
+              <div>
+                <Button
+                  type="submit"
+                  color="inherit"
+                  onClick={() => setNoteToEdit(null)}>
+                  <ArrowBack />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
-      </NotesContainer>
+          </NotesContainer>
+        </>
+      ) : (
+        <>
+          <form onSubmit={notesForm.handleSubmit}>
+            <textarea
+              name="message"
+              value={notesForm.values.message}
+              onChange={notesForm.handleChange}
+              placeholder="Faça uma anotação para salva-la abaixo"
+            />
+
+            <Button type="submit">
+              <ArrowForward />
+            </Button>
+          </form>
+
+          <NotesContainer>
+            <h3>Lista de Mensagens</h3>
+
+            {notes.length > 0 ? (
+              notes.map((note) => (
+                <div key={note.id}>
+                  <p>{note.message}</p>
+
+                  <div>
+                    <Button
+                      type="submit"
+                      color="inherit"
+                      onClick={() => handleStartEditing(note)}>
+                      <Edit />
+                    </Button>
+
+                    <Button
+                      type="submit"
+                      color="inherit"
+                      onClick={() => handleRemoveNote(note.id)}>
+                      <Delete />
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p>
+                Não foi encontrado nenhuma anotação, experimente digitar uma
+                nova acima
+              </p>
+            )}
+          </NotesContainer>
+        </>
+      )}
     </Container>
   )
 }
