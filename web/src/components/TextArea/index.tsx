@@ -12,12 +12,7 @@ interface TextInputProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 const TextInput: React.FC<TextInputProps> = ({ form, name, ...rest }) => {
   return (
     <TextArea>
-      <textarea
-        name={name}
-        value={form?.values.message}
-        onChange={form?.handleChange}
-        {...rest}
-      />
+      <textarea name={name} onChange={form?.handleChange} {...rest} />
 
       {form.errors.hasOwnProperty('message') ? (
         <div>
