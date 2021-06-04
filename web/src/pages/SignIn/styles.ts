@@ -1,7 +1,17 @@
-import styled from 'styled-components'
+import styled, { keyframes } from 'styled-components'
+
+const appearFromLeft = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-50px)
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`
 
 export const Container = styled.div`
-  position: relative;
   height: 100vh;
   width: 100%;
 
@@ -26,6 +36,8 @@ export const Container = styled.div`
     box-shadow: 0.2rem 0.1rem 0.1rem rgba(0, 0, 0, 0.1);
     z-index: 1;
 
+    animation: ${appearFromLeft} 1s;
+
     > h1 {
       font-size: 1.8rem;
       font-weight: 500;
@@ -42,8 +54,16 @@ export const Container = styled.div`
 
       button {
         width: 100%;
-        background: #4f1271;
         color: #fff;
+        background: #000;
+
+        transition: 0.5s;
+
+        &:hover {
+          color: #000;
+
+          border: 1px solid black;
+        }
       }
     }
   }

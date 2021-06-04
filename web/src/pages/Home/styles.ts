@@ -23,7 +23,7 @@ export const Container = styled.div`
     margin-bottom: 1.2rem;
 
     > button {
-      background-color: #4f1271;
+      background-color: #000;
       color: #fff;
 
       border-radius: 0.5rem;
@@ -59,7 +59,7 @@ export const NotesContainer = styled.div`
 
   > div {
     border-radius: 0.4rem;
-    background-color: #4f1271;
+    background-color: #2b303a;
 
     display: flex;
     flex-direction: row;
@@ -85,7 +85,7 @@ export const NotesContainer = styled.div`
       align-items: flex-end;
 
       > button {
-        background-color: #783f8e;
+        background-color: #000;
         box-shadow: 0.2rem 0.1rem 0.1rem rgba(0, 0, 0, 0.1);
 
         & + button {

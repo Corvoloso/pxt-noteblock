@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { Spinner } from 'react-activity'
 
 import Button from '@material-ui/core/Button'
 import { ArrowForward, Delete, Edit, ArrowBack } from '@material-ui/icons'
 
-import TextArea from '../../components/TextArea'
-
 import api from '../../services/api'
+import Header from '../../components/Header'
+import TextArea from '../../components/TextArea'
 
 import { Container, NotesContainer } from './styles'
 
@@ -19,17 +20,18 @@ interface NotesProps {
 const Home: React.FC = () => {
   const [notes, setNotes] = useState<NotesProps[]>([])
   const [noteToEdit, setNoteToEdit] = useState<NotesProps | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const notesFormSchema = Yup.object().shape({
     message: Yup.string()
-      .min(1, 'Você deve digitar algum texto para fazer uma anotação!')
-      .required('Você deve digitar algum texto para fazer uma anotação!'),
+      .min(1, 'Você deve digitar algum texto para fazer uma anotação')
+      .required('Você deve digitar algum texto para fazer uma anotação'),
   })
 
   const editNotesFormSchema = Yup.object().shape({
     message: Yup.string()
-      .min(1, 'Você deve digitar algum texto para fazer uma anotação!')
-      .required('Você deve digitar algum texto para editar sua anotação!'),
+      .min(1, 'Você deve digitar algum texto para fazer uma anotação')
+      .required('Você deve digitar algum texto para editar sua anotação'),
   })
 
   const handleAddNote = useCallback(
@@ -125,6 +127,8 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     async function loadNotes() {
+      setIsLoading(true)
+
       try {
         const { data } = await api.get('/message')
 
@@ -132,6 +136,8 @@ const Home: React.FC = () => {
       } catch (err) {
         console.log(err)
       }
+
+      setIsLoading(false)
     }
 
     loadNotes()
@@ -139,6 +145,8 @@ const Home: React.FC = () => {
 
   return (
     <Container>
+      <Header />
+
       <h1>Blocos de Nota - PXT</h1>
 
       {noteToEdit ? (
@@ -184,38 +192,42 @@ const Home: React.FC = () => {
             </Button>
           </form>
 
-          <NotesContainer>
-            <h3>Lista de Mensagens</h3>
+          {isLoading ? (
+            <Spinner size={36} />
+          ) : (
+            <NotesContainer>
+              <h3>Lista de Mensagens</h3>
 
-            {notes.length > 0 ? (
-              notes.map((note) => (
-                <div key={note.id}>
-                  <p>{note.message}</p>
+              {notes.length > 0 ? (
+                notes.map((note) => (
+                  <div key={note.id}>
+                    <p>{note.message}</p>
 
-                  <div>
-                    <Button
-                      type="submit"
-                      color="inherit"
-                      onClick={() => handleStartEditing(note)}>
-                      <Edit />
-                    </Button>
+                    <div>
+                      <Button
+                        type="submit"
+                        color="inherit"
+                        onClick={() => handleStartEditing(note)}>
+                        <Edit />
+                      </Button>
 
-                    <Button
-                      type="submit"
-                      color="inherit"
-                      onClick={() => handleRemoveNote(note.id)}>
-                      <Delete />
-                    </Button>
+                      <Button
+                        type="submit"
+                        color="inherit"
+                        onClick={() => handleRemoveNote(note.id)}>
+                        <Delete />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <p>
-                Não foi encontrado nenhuma anotação, experimente digitar uma
-                nova acima
-              </p>
-            )}
-          </NotesContainer>
+                ))
+              ) : (
+                <p>
+                  Não foi encontrado nenhuma anotação, experimente digitar uma
+                  nova acima
+                </p>
+              )}
+            </NotesContainer>
+          )}
         </>
       )}
     </Container>

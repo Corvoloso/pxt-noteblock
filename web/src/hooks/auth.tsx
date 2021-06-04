@@ -16,6 +16,7 @@ interface SignInProps {
 interface AuthContextData {
   user: any
   signIn(formData: SignInProps): Promise<void>
+  signOut(): Promise<void>
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData)
@@ -35,6 +36,17 @@ export const AuthProvider: React.FC = ({ children }) => {
     }
   }, [])
 
+  const signOut = useCallback(async () => {
+    try {
+      await api.delete('/auth')
+
+      setUser({})
+      localStorage.removeItem('@auth/user')
+    } catch (err) {
+      console.log(err)
+    }
+  }, [])
+
   useEffect(() => {
     const foundUser = localStorage.getItem('@auth/user')
 
@@ -46,7 +58,7 @@ export const AuthProvider: React.FC = ({ children }) => {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, signIn }}>
+    <AuthContext.Provider value={{ user, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   )
