@@ -19,21 +19,8 @@ export const Container = styled.div`
   > form {
     display: flex;
     justify-content: space-between;
-    width: 33%;
-
-    textarea {
-      height: 8rem;
-      flex: 1;
-
-      resize: none;
-      font-size: 1.1rem;
-
-      border-radius: 0.5rem;
-      border: 0;
-      padding: 0.5rem;
-
-      box-shadow: 0.2rem 0.2rem 0.2rem rgba(0, 0, 0, 0.1);
-    }
+    width: 50%;
+    margin-bottom: 1.2rem;
 
     > button {
       background-color: #4f1271;
@@ -48,7 +35,7 @@ export const Container = styled.div`
 `
 
 export const NotesContainer = styled.div`
-  width: 33%;
+  width: 50%;
   display: flex;
   flex-direction: column;
 

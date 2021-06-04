@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useFormik } from 'formik'
+import * as Yup from 'yup'
 
 import Button from '@material-ui/core/Button'
-import {
-  ArrowForward,
-  Delete,
-  Edit,
-  Clear,
-  ArrowBack,
-} from '@material-ui/icons'
+import { ArrowForward, Delete, Edit, ArrowBack } from '@material-ui/icons'
+
+import TextArea from '../../components/TextArea'
 
 import api from '../../services/api'
 
@@ -23,13 +20,30 @@ const Home: React.FC = () => {
   const [notes, setNotes] = useState<NotesProps[]>([])
   const [noteToEdit, setNoteToEdit] = useState<NotesProps | null>(null)
 
-  const handleStartEditing = useCallback((note) => {
-    setNoteToEdit(note)
-  }, [])
+  const notesFormSchema = Yup.object().shape({
+    message: Yup.string()
+      .min(1, 'Você deve digitar algum texto para fazer uma anotação!')
+      .required('Você deve digitar algum texto para fazer uma anotação!'),
+  })
+
+  const editNotesFormSchema = Yup.object().shape({
+    message: Yup.string()
+      .min(1, 'Você deve digitar algum texto para fazer uma anotação!')
+      .required('Você deve digitar algum texto para editar sua anotação!'),
+  })
 
   const handleAddNote = useCallback(
     async (note) => {
       try {
+        await notesFormSchema.validate(
+          {
+            message: note.message || '',
+          },
+          {
+            abortEarly: false,
+          },
+        )
+
         const { data } = await api.post('/message', note)
 
         const newNotes = [data.message, ...notes]
@@ -39,13 +53,24 @@ const Home: React.FC = () => {
         console.log(err)
       }
     },
-    [notes],
+    [notes, notesFormSchema],
   )
+
+  const handleStartEditing = useCallback((note) => {
+    setNoteToEdit(note)
+  }, [])
 
   const handleEditNote = useCallback(
     async ({ message }) => {
       try {
         if (noteToEdit) {
+          await notesFormSchema.validate(
+            { message },
+            {
+              abortEarly: false,
+            },
+          )
+
           await api.put(`/message/${noteToEdit.id}`, { message })
 
           const newNotes = notes
@@ -60,10 +85,11 @@ const Home: React.FC = () => {
           setNoteToEdit(null)
         }
       } catch (err) {
+        console.log('fodeu')
         console.log(err)
       }
     },
-    [notes, noteToEdit],
+    [noteToEdit, notesFormSchema, notes],
   )
 
   const handleRemoveNote = useCallback(
@@ -86,6 +112,7 @@ const Home: React.FC = () => {
       message: '',
     },
     onSubmit: handleAddNote,
+    validationSchema: notesFormSchema,
   })
 
   const editNotesForm = useFormik({
@@ -93,6 +120,7 @@ const Home: React.FC = () => {
       message: '',
     },
     onSubmit: handleEditNote,
+    validationSchema: editNotesFormSchema,
   })
 
   useEffect(() => {
@@ -116,11 +144,10 @@ const Home: React.FC = () => {
       {noteToEdit ? (
         <>
           <form onSubmit={editNotesForm.handleSubmit}>
-            <textarea
+            <TextArea
               name="message"
-              value={editNotesForm.values.message}
-              onChange={editNotesForm.handleChange}
-              placeholder="Faça uma anotação para salva-la abaixo"
+              form={editNotesForm}
+              placeholder="Digite algo para editar a anotação abaixo"
             />
 
             <Button type="submit">
@@ -146,11 +173,10 @@ const Home: React.FC = () => {
       ) : (
         <>
           <form onSubmit={notesForm.handleSubmit}>
-            <textarea
+            <TextArea
               name="message"
-              value={notesForm.values.message}
-              onChange={notesForm.handleChange}
-              placeholder="Digite algo para editar a anotação abaixo"
+              form={notesForm}
+              placeholder="Faça uma anotação para salva-la abaixo"
             />
 
             <Button type="submit">

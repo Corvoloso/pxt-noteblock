@@ -8,11 +8,6 @@ import React, {
 } from 'react'
 import api from '../services/api'
 
-interface UserData {
-  email: string
-  id: string
-}
-
 interface SignInProps {
   email: string
   password: string

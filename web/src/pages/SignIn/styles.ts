@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import backgroundImg from '../../assets/png/signin_background.png'
 
 export const Container = styled.div`
   position: relative;

@@ -3,6 +3,7 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 
+// Normalmente as informações a baixo seriam guardadas num .env
 const firebaseConfig = {
   apiKey: "AIzaSyBBhxtQeWsc84ysfAmmzLuttKjdhHMPNQ0",
   authDomain: "pxt-noteblock.firebaseapp.com",
