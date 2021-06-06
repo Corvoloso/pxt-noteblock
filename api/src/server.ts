@@ -16,7 +16,7 @@ app.use('/message', messageRoutes)
 
 functions.https.onRequest(app);
 
-app.listen(8888, () => {
+app.listen(3333, () => {
   console.log('Backend up 🚀')
-  console.log('Apk disponibilizado em: http://localhost:8888')
+  console.log('Apk disponibilizado em: http://localhost:3333')
 })
