@@ -66,7 +66,7 @@ const Home: React.FC = () => {
     async ({ message }) => {
       try {
         if (noteToEdit) {
-          await notesFormSchema.validate(
+          await editNotesFormSchema.validate(
             { message },
             {
               abortEarly: false,
@@ -91,7 +91,7 @@ const Home: React.FC = () => {
         console.log(err)
       }
     },
-    [noteToEdit, notesFormSchema, notes],
+    [noteToEdit, editNotesFormSchema, notes],
   )
 
   const handleRemoveNote = useCallback(

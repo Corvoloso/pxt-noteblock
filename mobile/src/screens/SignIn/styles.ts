@@ -18,8 +18,3 @@ export const Title = styled.Text`
 export const Form = styled.View`
   width: 90%;
 `;
-
-export const Input = styled(TextInput)`
-  background-color: rgba(0, 0, 0, 0);
-  color: #000;
-`;

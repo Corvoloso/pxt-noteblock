@@ -5,8 +5,9 @@ import * as Yup from 'yup';
 
 import tailwind from 'tailwind-rn';
 
-import {Title, Container, Form, Input} from './styles';
+import {Title, Container, Form} from './styles';
 import {useAuth} from '../../hooks/auth';
+import Input from '../../components/Input';
 
 const SignIn: React.FC = () => {
   const {signIn} = useAuth();
@@ -41,12 +42,13 @@ const SignIn: React.FC = () => {
         initialValues={{email: '', password: ''}}
         onSubmit={handleAuthenticate}
         validationSchema={signInSchema}>
-        {({handleSubmit, handleChange}) => (
+        {({handleSubmit, handleChange, errors}) => (
           <Form>
             <Input
               name="email"
               placeholder="E-mail"
               onChangeText={handleChange('email')}
+              error={errors.email}
             />
             <Input
               name="password"
@@ -54,6 +56,7 @@ const SignIn: React.FC = () => {
               secureTextEntry
               style={tailwind('mt-4')}
               placeholder="Senha"
+              error={errors.password}
             />
 
             <Button
